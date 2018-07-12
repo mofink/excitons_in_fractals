@@ -189,44 +189,53 @@ def find_IDOS(vals):
 
 
 def find_interaction_matrix(A,V_0,psi,w,num_states):
-	w = np.array(w)
-	psi = np.array(psi)
 
-	int_mtrx = np.zeros((len(psi),)*4,dtype=complex)
+	int_mtrx = np.zeros(4 * (n_max,), dtype=complex)
 
-
-	for i in xrange(len(psi)):
-		for j in xrange(len(psi)):
-			for k in xrange(len(psi)):
-				for l in xrange(len(psi)):
-					arg = ((12*pi+9)/(32*pi))*psi[i].conj()*psi[j].conj()*psi[k]*psi[l]*4/w
-					int_mtrx[i,j,k,l] = np.trapz(arg, dx = h)
+	for i in xrange(n_max):
+		for j in xrange(i + 1):
+			for k in xrange(i + 1):
+				for l in xrange(k + 1):
+					arg = 1.5*psi[i].conj()*psi[j].conj()*psi[k]*psi[l]/w
+					result = np.trapz(arg, dx = h)
+					int_mtrx[i,j,k,l] = result
+					int_mtrx[j,i,k,l] = result
+					int_mtrx[i,j,l,k] = result
+					int_mtrx[j,i,l,k] = result
+					result = result.conjugate()
+					int_mtrx[k,l,i,j] = result
+					int_mtrx[l,k,i,j] = result
+					int_mtrx[k,l,j,i] = result
+					int_mtrx[l,k,j,i] = result
 
 	A = A.transpose()
 
-	mtrx = np.zeros((num_states,)*4,dtype=complex)
+	mtrx = np.zeros(4 * (num_states,),dtype=complex)
 
 	for i in xrange(num_states):
-		for j in xrange(num_states):
-			for k in xrange(num_states):
-				for l in xrange(num_states):
-					for m in xrange(len(psi)):
-						for n in xrange(len(psi)):
-							for o in xrange(len(psi)):
-								for p in xrange(len(psi)):
-									mtrx[i,j,k,l] = V_0*A[i,m]*A[j,n]*A[k,o]*A[l,p]*int_mtrx[m,n,o,p]
-									print i,j,k,l,m,n,o,p
-
-									
-									
-				
+		for j in xrange(i + 1):
+			for k in xrange(i + 1):
+				for l in xrange(num_states if k < i else j + 1):
+					result = 0
+					for m in xrange(n_max):
+						for n in xrange(n_max):
+							for o in xrange(n_max):
+								for p in xrange(n_max):
+									result += V_0*A[i,m].conjugate()*A[j,n].conjugate()*A[k,o]*A[l,p]*int_mtrx[m,n,o,p]
+					mtrx[i,j,k,l] = result
+					mtrx[j,i,l,k] = result
+					result = result.conjugate()
+					mtrx[k,l,i,j] = result
+					mtrx[l,k,j,i] = result
 
 	return mtrx
 
-
-
-find_interaction_matrix(vects,1,psi,w,2)
-
+vmat = find_interaction_matrix(vects,1,psi,w,4)
+for i in xrange(4):
+	for j in xrange(4):
+		for k in xrange(4):
+			for l in xrange(4):
+				print '%6f' % vmat[i,j,k,l].real
 
 
 
