@@ -204,21 +204,29 @@ def find_interaction_matrix(A,V_0,psi,w,num_states):
 
 	A = A.transpose()
 
-	sum_mtrx = np.zeros((num_states,)*4,dtype=complex)
+	mtrx = np.zeros((num_states,)*4,dtype=complex)
 
 	for i in xrange(num_states):
 		for j in xrange(num_states):
 			for k in xrange(num_states):
 				for l in xrange(num_states):
+					for m in xrange(len(psi)):
+						for n in xrange(len(psi)):
+							for o in xrange(len(psi)):
+								for p in xrange(len(psi)):
+									mtrx[i,j,k,l] = V_0*A[i,m]*A[j,n]*A[k,o]*A[l,p]*int_mtrx[m,n,o,p]
+									print i,j,k,l,m,n,o,p
 
-					sum_mtrx[i,j,k,l] = sum(A[i,:],sum(A[j,:],sum(A[k,:],sum(A[l,:],int_mtrx[:,:,:,:]    )   )   ))
+									
+									
 				
 
-	return sum_mtrx
+	return mtrx
 
 
 
-print find_interaction_matrix(vects,1,psi,w,10)
+find_interaction_matrix(vects,1,psi,w,2)
+
 
 
 
