@@ -5,6 +5,9 @@ import cmath
 import numpy as np
 from scipy.sparse.linalg import eigs
 from scipy.linalg import eigh
+from scipy.misc import factorial
+
+import pprint as pprint
 
 
 import matplotlib.pyplot as plt
@@ -119,13 +122,13 @@ for k in xrange(N):
 
 
 A = np.zeros((m_max,n_max),dtype=np.complex)
-psi = np.array([[cmath.exp(1j*(2*pi*n/L)*k*h) for k in xrange(N)] for n in xrange(n_max)], dtype=np.complex)
+phi = np.array([[cmath.exp(1j*(2*pi*n/L)*k*h) for k in xrange(N)] for n in xrange(n_max)], dtype=np.complex)
 
 for m in xrange(m_max):
 	for n in xrange(n_max):
 		
-		arg = np.multiply(psi[n],V)
-		arg = np.multiply(arg,np.conj(psi[m]))
+		arg = np.multiply(phi[n],V)
+		arg = np.multiply(arg,np.conj(phi[m]))
 		A[m, n] = np.trapz(arg, dx = h)
 		if m == n:
 			A[m, n] = A[m, n] + (2*pi*n)**2
@@ -187,6 +190,31 @@ def find_IDOS(vals):
 
 	return eps,IDOS
 
+def new_find_interaction_matrix(A,V_0,phi,w,num_states):
+
+	A = A.transpose()
+	psi = np.matmul(A[0:num_states,:],phi)
+
+	mtrx = np.zeros(4 * (num_states,),dtype=complex)
+
+	for i in xrange(num_states):
+		for j in xrange(i + 1):
+			for k in xrange(i + 1):
+				for l in xrange(num_states if k < i else j + 1):
+
+					arg = 1.5*psi[i].conj()*psi[j].conj()*psi[k]*psi[l]/w
+					result = np.trapz(arg, dx = h)*V_0
+					
+					mtrx[i,j,k,l] = result
+					mtrx[j,i,l,k] = result
+					result = result.conjugate()
+					mtrx[k,l,i,j] = result
+					mtrx[l,k,j,i] = result
+
+	
+	return mtrx
+
+
 
 def find_interaction_matrix(A,V_0,psi,w,num_states):
 
@@ -230,12 +258,67 @@ def find_interaction_matrix(A,V_0,psi,w,num_states):
 
 	return mtrx
 
-vmat = find_interaction_matrix(vects,1,psi,w,4)
-for i in xrange(4):
-	for j in xrange(4):
-		for k in xrange(4):
-			for l in xrange(4):
-				print '%6f' % vmat[i,j,k,l].real
 
+#vmat = new_find_interaction_matrix(vects,1,phi,w,4)
+
+def find_states(N,Ns): #N = number of particles, Ns = number of states
+
+	num = factorial(N+Ns-1)/(factorial(N)*factorial(Ns-1))
+	num = int(num+100)
+	
+	
+
+
+
+	#mtrx = [[0 for i in xrange(N)] for j in xrange(num)]
+	mtrx = []
+
+
+	max_idx = [Ns for i in xrange(N)]
+	max_idx = int("".join(str(digit) for digit in max_idx))
+	row_idx = 0
+	for row in xrange(max_idx):
+
+		
+		state = base10toN(row,Ns)
+		state = [int(d) for d in str(state)] #split to a vector
+		state = pad(state,N) #pad with zeros to length N
+		flag = False
+
+		if sorted(state,reverse = True) == state:
+			
+			#mtrx[row_idx] = state
+			mtrx.append(state)
+			row_idx+=1
+			#print "ADDED",state
+		else:
+			#print "REJECTED",state
+			pass
+
+	return mtrx
+			
+def pad(l, n):
+    l.extend([0] * n)
+    l = l[:n]
+    return l
+
+def base10toN(num, base):
+    """Change ``num'' to given base
+    Up to base 36 is supported."""
+
+    converted_string, modstring = "", ""
+    currentnum = num
+    if not 1 < base < 37:
+        raise ValueError("base must be between 2 and 36")
+    if not num:
+        return '0'
+    while currentnum:
+        mod = currentnum % base
+        currentnum = currentnum // base
+        converted_string = chr(48 + mod + 7*(mod > 10)) + converted_string
+    return converted_string
+
+#find_states(4,5)
+pprint.pprint(find_states(4,6))
 
 
