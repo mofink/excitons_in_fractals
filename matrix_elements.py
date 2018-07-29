@@ -6,62 +6,44 @@ def getMatrixElement(i,j,k,state_basis,vals,V,N):
 		total = 0
 
 		#lone particle terms
-		for particle in xrange(N): 
-			total += vals[particle]
+		for state in state_basis[i]: 
+			total += vals[state]
 
 
 		#interaction terms
 		kets = find_V_Args(state_basis[i],state_basis[j],N,d,0,0) #m = n = 0
 
 		
-		for m in kets:
-			for n in kets:
-				if m == n:
-					pass
-				else:
-					total += V[m,n,m,n] + V[m,n,n,m] + V[n,m,m,n] + V[n,m,n,m]
+		for m,n in kets:
+			total += V[m,n,m,n] + V[m,n,n,m] + V[n,m,m,n] + V[n,m,n,m]
 
 		return total
 
 	else:
 		m,n,d = compare(state_basis[i],state_basis[j],2)
-		if m == n == 0:
-			pass
+		if d == -1:
+			return 0.0
 		
-		else: # d>0
+		elif d == 1:
+			total = 0
+			l1 = state_basis[i,m[0]]
+			r1 = state_basis[j,n[0]]
 
-			if d == 1:
+			kets = find_V_Args(state_basis[i],state_basis[j],N,d,m,n)
+			for x in kets:
+				total += V[l1,x,r1,x] + V[l1,x,x,r1] + V[x,l1,r1,x] + V[x,l1,x,r1]
+			return total
 
-				total = 0
-
-				kets = find_V_Args(state_basis[i],state_basis[j],N,d,m,n)
-				for x in kets:
-					for other in xrange(N):
-						if other == x:
-							pass
-						else:
-							total += V[x,other,x,other] + V[other,x,x,other] + V[x,other,other,x] + V[other,x,other,x]
-				return total
-
-			elif d == 2:
-				total = 0
-				kets = find_V_Args(state_basis[i],state_basis[j],N,d,m,n)
-				#easier to handle manually than to rework the generator in find_V_args
-				matr = [0,0,0,0]
-				indx = 0
-				for i in kets:
-					matr[indx] = i
-					indx = indx + 1
-				x,y,z,w = matr[0],matr[1],matr[2],matr[3]
-
-				total += V[x,y,z,w] + V[x,y,w,z] + V[y,x,w,z] + V[y,x,z,w]
+		elif d == 2:
+			total = 0
+			l1 = state_basis[i,m[0]]
+			l2 = state_basis[i,m[1]]
+			r1 = state_basis[j,n[0]]
+			r2 = state_basis[j,n[1]]
+			
+			total += V[l1,l2,r1,r2] + V[l1,l2,r2,r1] + V[l2,l1,r1,r2] + V[l2,l1,r2,r1]
 				
-				return total
-
-			else: #d > 2
-				return 0
-
-
+			return total
 
 def compare(a,b,k):
 	m,n = [-1,-1],[-1,-1] #m,n store differences by index for a,b respectively

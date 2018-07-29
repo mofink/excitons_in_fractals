@@ -14,15 +14,21 @@ def new_find_interaction_matrix(A,V_0,phi,w,num_states,h):
 	for i in xrange(num_states):
 		for j in xrange(i + 1):
 			for k in xrange(i + 1):
-				for l in xrange(num_states if k < i else j + 1):
+				for l in xrange(k+1):
 
 					arg = 1.5*psi[i].conj()*psi[j].conj()*psi[k]*psi[l]/w
 					result = np.trapz(arg, dx = h)*V_0
+
+					result *= 0.5 * (0.5 if i == j else 1.0) * (0.5 if k == l else 1.0)
 					
 					mtrx[i,j,k,l] = result
+					mtrx[j,i,k,l] = result
+					mtrx[i,j,l,k] = result
 					mtrx[j,i,l,k] = result
 					result = result.conjugate()
 					mtrx[k,l,i,j] = result
+					mtrx[l,k,i,j] = result
+					mtrx[k,l,j,i] = result
 					mtrx[l,k,j,i] = result
 
 	
@@ -30,7 +36,7 @@ def new_find_interaction_matrix(A,V_0,phi,w,num_states,h):
 
 
 #use new function instead of this
-def find_interaction_matrix(A,V_0,psi,w,num_states):
+def find_interaction_matrix(A,V_0,psi,w,num_states,h):
 
 	int_mtrx = np.zeros(4 * (n_max,), dtype=complex)
 
@@ -64,6 +70,7 @@ def find_interaction_matrix(A,V_0,psi,w,num_states):
 							for o in xrange(n_max):
 								for p in xrange(n_max):
 									result += V_0*A[i,m].conjugate()*A[j,n].conjugate()*A[k,o]*A[l,p]*int_mtrx[m,n,o,p]
+					result *= 0.5 * (0.5 if i == j else 1.0) * (0.5 if k == l else 1.0)
 					mtrx[i,j,k,l] = result
 					mtrx[j,i,l,k] = result
 					result = result.conjugate()
@@ -94,24 +101,10 @@ def find_V_Args(a,b,N,d,m,n):
 
 
 	elif d == 1:
-
-
-		a_dict = Counter(a[0:m[0]] + a[m[0]+1:])
+		a_dict = Counter(a[0:m[0]])
+		a_dict.update(a[m[0]+1:])
 		a_keys = a_dict.keys()
-	
 		
 		#Recall: m,n are differences between two states by index
 		for i in a_keys:
 			yield i
-
-
-	else: #d == 2
-		
-		flag = True
-		while flag == True:
-			for i in m:
-				yield a[i]
-			flag = False
-		
-		for i in n:
-			yield b[i]
