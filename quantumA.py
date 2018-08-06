@@ -19,7 +19,7 @@ w_max = 13 # Sequence order
 L = 1.0
 W_A = 0.01
 W_B = 0.018
-n_max = 100
+n_max = 200
 W_Fib = gen_Fibonacci_seq(w_max,W_A,W_B)
 M = len(W_Fib)
 a = L / M
@@ -33,7 +33,7 @@ vals,vects = get_eigsystem(n_max, V, phi, N, h)
 
 
 ##########
-
+"""
 
 x = xrange(n_max)
 
@@ -62,20 +62,20 @@ ax2.scatter(x,vals1* EnS / (aex*M)**2)
 ax2.set_xlim(-10, 30)
 ax2.set_ylim(0, 5000)
 plt.show()
-
+"""
 #######
 
-"""
 
-V_0 = 10**(-3)
-Np, Ns = 4, 12
+
+V_0 = 100
+Np, Ns = 4, 6
 vmat = new_find_interaction_matrix(vects,V_0,phi,w,Ns,h)
 
 state_basis = find_states(Np,Ns) #generates state basis
 
 sparse_mtrx = createSparseMatrix(state_basis,vals,vmat,Np)
 sparse_mtrx = sparse_mtrx + sparse_mtrx.getH()
-neigs = 10 #number of states
+neigs = 4 #number of states
 mbvals,mbvects = eigsh(sparse_mtrx,k=neigs,which='SM')
 
 
@@ -90,11 +90,10 @@ ax1.scatter(x,vals * EnS / (aex*M)**2)
 ax1.set_xlim(0, 100)
 ax2.scatter(mbx, mbvals * EnS / (aex*M)**2)
 plt.show()
-"""
 
-#print occupation(mbvects,state_basis,0,neigs)
-#print occupation(mbvects,state_basis,1,neigs)
-#print occupation(mbvects,state_basis,2,neigs)
+print occupation(mbvects,state_basis,0,neigs)
+print occupation(mbvects,state_basis,1,neigs)
+print occupation(mbvects,state_basis,2,neigs)
 
 
 #print getMatrixElement(i,j,2,state_basis,vals,vmat,N) #i,j are indices, k is max difference to consider,N is number of particles
