@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import csc_matrix
 from matrix_elements import *
+from multiprocessing import *
 
 def createSparseMatrix(state_basis,vals,vmat,N):
 	dim = 5*len(state_basis)

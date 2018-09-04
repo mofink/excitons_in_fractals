@@ -81,4 +81,3 @@ def compare(a,b,k):
 
 	d = x
 	return m,n,d
-

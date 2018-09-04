@@ -12,7 +12,6 @@ def gen_Fibonacci_seq(w_max,W_A,W_B):
 	W = [0] * w_max
 	W[0] = 'A' #W_A
 	W[1] = 'B' #W_B
-
 	for i in xrange(w_max):
 		if i > 1:
 			W[i] = W[i-2] + W[i-1]
@@ -21,6 +20,8 @@ def gen_Fibonacci_seq(w_max,W_A,W_B):
 	M = len(W) #Number of letters
 
 	#convert A and B to numeric values
+	
+	
 	for i in xrange(len(W)):
 		if W[i] == 'A':
 			W[i] = W_A
@@ -29,7 +30,7 @@ def gen_Fibonacci_seq(w_max,W_A,W_B):
 	
 	return W
 
-def Fib_potential(W_Fib, L, a, eta, N, h) :
+def Fib_potential(W_Fib, L, a, eta, N, h):
 	M = len(W_Fib)
 
 	w = np.zeros(N, dtype=float)

@@ -19,7 +19,7 @@ def new_find_interaction_matrix(A,V_0,phi,w,num_states,h):
 					arg = 1.5*psi[i].conj()*psi[j].conj()*psi[k]*psi[l]/w
 					result = np.trapz(arg, dx = h)*V_0
 
-					result *= 0.5 * (0.5 if i == j else 1.0) * (0.5 if k == l else 1.0)
+					result *= 0.5
 					
 					mtrx[i,j,k,l] = result
 					mtrx[j,i,k,l] = result
@@ -70,7 +70,7 @@ def find_interaction_matrix(A,V_0,psi,w,num_states,h):
 							for o in xrange(n_max):
 								for p in xrange(n_max):
 									result += V_0*A[i,m].conjugate()*A[j,n].conjugate()*A[k,o]*A[l,p]*int_mtrx[m,n,o,p]
-					result *= 0.5 * (0.5 if i == j else 1.0) * (0.5 if k == l else 1.0)
+					result *= 0.5
 					mtrx[i,j,k,l] = result
 					mtrx[j,i,l,k] = result
 					result = result.conjugate()
@@ -83,28 +83,19 @@ def find_interaction_matrix(A,V_0,psi,w,num_states,h):
 def find_V_Args(a,b,N,d,m,n):
 	
 	if d == 0: #Here a == b
-		corpus = Counter(a)
-		keys = corpus.keys()
-		values = corpus.values()
-
-		for i in xrange(len(keys)):
-			for j in xrange(i,len(keys)):
-				if i == j:
-					
-					if values[i] < 2:
-						pass
-					else:
-						yield keys[i],keys[j]
-
-				else:
-					yield keys[i],keys[j]
+		for i in xrange(len(a)):
+			for j in xrange(i+1,len(a)):
+					yield a[i],a[j]
 
 
-	elif d == 1:
-		a_dict = Counter(a[0:m[0]])
-		a_dict.update(a[m[0]+1:])
-		a_keys = a_dict.keys()
-		
+	elif d == 1:		
 		#Recall: m,n are differences between two states by index
-		for i in a_keys:
-			yield i
+		for i in xrange(len(a)):
+			if i != m[0]:
+				yield a[i]
+
+
+
+
+
+
