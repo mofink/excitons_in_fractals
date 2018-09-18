@@ -28,9 +28,8 @@ aex = 0.8
 for i in xrange(len(y_vals)):
 	y_vals[i] = y_vals[i] * EnS / (aex*M)**2
 
-inc = 0.5
+inc = 10 #increment when generating data
 
-x = np.linspace(0,len(y_vals)/2,250)
-#x = xrange(0,len(y_vals)*inc,inc)
+x = np.linspace(0,len(y_vals)/2,50)
 plt.scatter(x, y_vals)
 plt.show()

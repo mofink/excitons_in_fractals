@@ -1,4 +1,6 @@
 from interaction import find_V_Args
+from collections import Counter
+import math
 
 def getMatrixElement(i,j,k,state_basis,vals,V,N):
 	if i == j: 
@@ -17,12 +19,11 @@ def getMatrixElement(i,j,k,state_basis,vals,V,N):
 		for m,n in kets:
 			total += V[m,n,m,n] + V[m,n,n,m] + V[n,m,m,n] + V[n,m,n,m]
 
-		return total
 
 	else:
 		m,n,d = compare(state_basis[i],state_basis[j],2)
 		if d == -1:
-			return 0.0
+			total = 0.0
 		
 		elif d == 1:
 			total = 0
@@ -32,7 +33,7 @@ def getMatrixElement(i,j,k,state_basis,vals,V,N):
 			kets = find_V_Args(state_basis[i],state_basis[j],N,d,m,n)
 			for x in kets:
 				total += V[l1,x,r1,x] + V[l1,x,x,r1] + V[x,l1,r1,x] + V[x,l1,x,r1]
-			return total
+			
 
 		elif d == 2:
 			total = 0
@@ -42,8 +43,33 @@ def getMatrixElement(i,j,k,state_basis,vals,V,N):
 			r2 = state_basis[j,n[1]]
 			
 			total += V[l1,l2,r1,r2] + V[l1,l2,r2,r1] + V[l2,l1,r1,r2] + V[l2,l1,r2,r1]
-				
-			return total
+		
+	
+	count1 = Counter(state_basis[i])
+	count2 = Counter(state_basis[j])
+
+	for value in count1.values():
+		if value == 2:
+			total *=math.sqrt(2)
+		elif value == 3:
+			total *= math.sqrt(3)
+		elif value == 4:
+			total *=2
+		else:
+			pass
+
+	for value in count2.values():
+		if value == 2:
+			total *=math.sqrt(2)
+		elif value == 3:
+			total *= math.sqrt(3)
+		elif value == 4:
+			total *=2
+		else:
+			pass
+
+
+	return total
 
 def compare(a,b,k):
 	m,n = [-1,-1],[-1,-1] #m,n store differences by index for a,b respectively

@@ -4,6 +4,7 @@ import cmath
 import numpy as np
 
 
+
 def new_find_interaction_matrix(A,V_0,phi,w,num_states,h):
 
 	A = A.transpose()

@@ -66,22 +66,37 @@ plt.show()
 """
 #######
 
+V_0 = 0
+output = np.zeros(50)
+for i in xrange(50):
 
-V_0 = 100
-#y_vals = np.zeros(250)
 
-print V_0
-Np, Ns = 4,6
-vmat = new_find_interaction_matrix(vects,V_0,phi,w,Ns,h)
+	print V_0
+	#Np, Ns = 4,8
+	Np, Ns = 4,6
+	vmat = new_find_interaction_matrix(vects,V_0,phi,w,Ns,h)
 
-state_basis = find_states(Np,Ns) #generates state basis
+	state_basis = find_states(Np,Ns) #generates state basis
 
-sparse_mtrx = createSparseMatrix(state_basis,vals,vmat,Np)
-sparse_mtrx = sparse_mtrx + sparse_mtrx.getH()
-neigs = 4 #number of states
-mbvals,mbvects = eigsh(sparse_mtrx,k=neigs,which='SM',ncv = max(3*neigs + 1, 30))
+	sparse_mtrx = createSparseMatrix(state_basis,vals,vmat,Np)
+	sparse_mtrx = sparse_mtrx + sparse_mtrx.getH()
 
-print mbvals
+
+	non_sparse_mtrx = create_matrix(state_basis,vals,vmat,Np)
+
+
+
+
+
+	neigs = 4 #number of states
+	mbvals,mbvects = eigsh(sparse_mtrx,k=neigs,which='SM',ncv = max(3*neigs + 1, 30))
+
+	V_0 += 10
+	output[i] = mbvals[0]
+
+with open("report.txt","a") as f:
+	f.write(str(output))
+
 
 #y_vals[i] = mbvals[1] - mbvals[0]
 #V_0 += 0.5
