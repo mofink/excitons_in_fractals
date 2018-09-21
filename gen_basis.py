@@ -3,12 +3,14 @@ import math
 import cmath
 import numpy as np
 from scipy.misc import factorial
+from collections import Counter
 
 
 def find_states(N,Ns): #N = number of particles, Ns = number of states, outputs basis matrix
 
 	num = int(factorial(N+Ns-1)/(factorial(N)*factorial(Ns-1)))
 	mtrx = np.zeros((num, N), dtype=int)
+	mtrxOccup = np.zeros((num, Ns), dtype=int)
 	Nspow = [Ns**(N-1-i) for i in xrange(N)]
 
 
@@ -23,11 +25,15 @@ def find_states(N,Ns): #N = number of particles, Ns = number of states, outputs 
 	row_idx = 0
 	for row in xrange(max_idx+1):	
 		state = genState(row,Ns,N,Nspow)
+
 		if sorted(state) == state:
 			mtrx[row_idx] = state
+			count = Counter(state)
+			for key in count.keys():
+				mtrxOccup[row_idx, key] = count[key]
 			row_idx+=1
 
-	return mtrx
+	return mtrx, mtrxOccup
 
 #wrong implementation
 def pad(num, N):

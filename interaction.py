@@ -85,18 +85,22 @@ def find_V_Args(a,b,N,d,m,n):
 	
 	if d == 0: #Here a == b
 		for i in xrange(len(a)):
-			for j in xrange(i+1,len(a)):
-					yield a[i],a[j]
+			if a[i] != 0:
+				for j in xrange(i, len(a)):
+					if i == j:
+						if a[i] > 1:
+							yield i, i
+					else:
+						if a[j] != 0:
+							yield i, j
 
 
 	elif d == 1:		
 		#Recall: m,n are differences between two states by index
-		for i in xrange(len(a)):
-			if i != m[0]:
-				yield a[i]
-
-
-
-
-
-
+		for i in xrange(len(a)): 
+			if i == m[0] and a[i] > 1:
+				yield i
+			elif i == n[0] and b[i] > 1:
+				yield i
+			elif a[i] != 0 and b[i] != 0:
+				yield i

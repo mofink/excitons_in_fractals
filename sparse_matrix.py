@@ -7,7 +7,7 @@ from functools import partial
 import warnings
 
 
-def createSparseMatrix(state_basis,vals,vmat,N):
+def createSparseMatrix(state_basis, state_occup, vals,vmat,N):
 	dim = 5*len(state_basis)
 	basis_size = len(state_basis)
 
@@ -18,7 +18,7 @@ def createSparseMatrix(state_basis,vals,vmat,N):
 
 	for i in xrange(basis_size):
 		for j in xrange(i,basis_size):
-			matrix_element = getMatrixElement(i,j,2,state_basis,vals,vmat,N)
+			matrix_element = getMatrixElement(i,j,2,state_basis, state_occup,vals,vmat,N)
 			if abs(matrix_element) < 10**-7:
 				pass
 			else:
@@ -69,7 +69,7 @@ def create_matrix(state_basis,vals,vmat,N):
 	return result
 
 """
-def fill_per_window(idx,state_basis,vals,vmat,N,block_size,shared_array):
+def fill_per_window(idx,state_basis, state_occup, vals,vmat,N,block_size,shared_array):
 
 	tmp = shared_array
 
@@ -78,11 +78,11 @@ def fill_per_window(idx,state_basis,vals,vmat,N,block_size,shared_array):
 
 	for idx_x in xrange(idx[0], idx[1]):
 		for idx_y in xrange(0, dim):
-			tmp[idx_x, idx_y] = getMatrixElement(idx_x,idx_y,2,state_basis,vals,vmat,N)
+			tmp[idx_x, idx_y] = getMatrixElement(idx_x,idx_y,2,state_basis,state_occup,vals,vmat,N)
 
 
 
-def create_matrix(state_basis,vals,vmat,N):
+def create_matrix(state_basis,state_occup,vals,vmat,N):
 
 
 	dim = len(state_basis)
@@ -91,7 +91,7 @@ def create_matrix(state_basis,vals,vmat,N):
 	
 
 	idxs = [(i, min(i + block_size, dim)) for i in xrange(0, dim, block_size)]
-	func = partial(fill_per_window,state_basis=state_basis,vals=vals,vmat=vmat,N=N,block_size=block_size,shared_array=shared_array)
+	func = partial(fill_per_window,state_basis=state_basis,state_occup=state_occup,vals=vals,vmat=vmat,N=N,block_size=block_size,shared_array=shared_array)
 
 	for idx in idxs:
 		func(idx)
@@ -102,17 +102,20 @@ def create_matrix(state_basis,vals,vmat,N):
 
 	return result
 
-def create_multiproc_matrix(state_basis,vals,vmat,N):
+def create_multiproc_matrix(state_basis,state_occup, vals,vmat,N):
 	global state_basis_sh
+	global state_occup_sh
 	global vals_sh
 	global vmat_sh
 	global matrix_sh
 	with warnings.catch_warnings():
 		warnings.simplefilter("ignore")
 		state_basis_ct = np.ctypeslib.as_ctypes(state_basis)
+		state_occup_ct = np.ctypeslib.as_ctypes(state_occup)
 		vals_ct = np.ctypeslib.as_ctypes(vals)
 		vmat_ct = np.ctypeslib.as_ctypes(vmat.view(dtype='float64'))
 		state_basis_sh = RawArray(state_basis_ct._type_, state_basis_ct)
+		state_occup_sh = RawArray(state_occup_ct._type_, state_occup_ct)
 		vals_sh = RawArray(vals_ct._type_, vals_ct)
 		vmat_sh = RawArray(vmat_ct._type_, vmat_ct)
 
@@ -136,6 +139,7 @@ def fill_per_window_sh(idx,N,block_size):
 
 	tmp = np.ctypeslib.as_array(matrix_sh).view(dtype='complex128')
 	state_basis = np.ctypeslib.as_array(state_basis_sh)
+	state_occup = np.ctypeslib.as_array(state_occup_sh)	
 	vals = np.ctypeslib.as_array(vals_sh)
 	vmat = np.ctypeslib.as_array(vmat_sh).view(dtype='complex128')
 
@@ -143,7 +147,7 @@ def fill_per_window_sh(idx,N,block_size):
 
 	for idx_x in xrange(idx[0], idx[1]):
 		for idx_y in xrange(0, dim):
-			tmp[idx_x, idx_y] = getMatrixElement(idx_x,idx_y,2,state_basis,vals,vmat,N)
+			tmp[idx_x, idx_y] = getMatrixElement(idx_x,idx_y,2,state_basis,state_occup,vals,vmat,N)
 
 
 

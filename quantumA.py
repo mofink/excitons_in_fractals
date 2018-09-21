@@ -76,13 +76,13 @@ for i in xrange(50):
 	Np, Ns = 4,6
 	vmat = new_find_interaction_matrix(vects,V_0,phi,w,Ns,h)
 
-	state_basis = find_states(Np,Ns) #generates state basis
+	state_basis, state_occup = find_states(Np,Ns) #generates state basis
 
-	sparse_mtrx = createSparseMatrix(state_basis,vals,vmat,Np)
+	sparse_mtrx = createSparseMatrix(state_basis, state_occup, vals,vmat,Np)
 	sparse_mtrx = sparse_mtrx + sparse_mtrx.getH()
 
 
-	non_sparse_mtrx = create_matrix(state_basis,vals,vmat,Np)
+	non_sparse_mtrx = create_matrix(state_basis,state_occup,vals,vmat,Np)
 
 
 
